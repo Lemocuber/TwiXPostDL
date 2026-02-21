@@ -6,7 +6,7 @@ export function recordBase(outRoot, record) {
   return path.join(outRoot, tid);
 }
 
-export async function saveRecord(session, outRoot, record, dryRun = false) {
+export async function saveRecord(session, outRoot, record, dryRun = false, withMetadata = false) {
   const base = recordBase(outRoot, record);
   const tid = String(record.tweet_id || "unknown");
 
@@ -19,26 +19,30 @@ export async function saveRecord(session, outRoot, record, dryRun = false) {
   const text = stripHashtags(record.text || "");
   await fs.promises.writeFile(path.join(base, "text.txt"), `${text}\n`, "utf8");
 
-  const mediaState = [];
+  const mediaState = withMetadata ? [] : null;
   for (const m of record.media) {
     const filePath = path.join(base, mediaFilename(tid, m.idx, m.ext));
     const [url, ok] = await downloadMedia(session, m, filePath);
-    const row = {
-      idx: m.idx,
-      kind: m.kind,
-      url,
-      file: ok ? path.basename(filePath) : null,
-      downloaded: ok,
-      width: m.width,
-      height: m.height,
-      description: m.description,
-    };
-    if (Object.prototype.hasOwnProperty.call(m, "bitrate")) row.bitrate = m.bitrate;
-    mediaState.push(row);
+    if (withMetadata) {
+      const row = {
+        idx: m.idx,
+        kind: m.kind,
+        url,
+        file: ok ? path.basename(filePath) : null,
+        downloaded: ok,
+        width: m.width,
+        height: m.height,
+        description: m.description,
+      };
+      if (Object.prototype.hasOwnProperty.call(m, "bitrate")) row.bitrate = m.bitrate;
+      mediaState.push(row);
+    }
   }
 
-  const data = { ...record, media: mediaState };
-  await fs.promises.writeFile(path.join(base, "metadata.json"), `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  if (withMetadata) {
+    const data = { ...record, media: mediaState };
+    await fs.promises.writeFile(path.join(base, "metadata.json"), `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  }
 }
 
 async function downloadMedia(session, media, filePath) {
@@ -65,8 +69,8 @@ function mediaFilename(tweetId, idx, ext) {
 }
 
 function stripHashtags(text) {
-  return text
-    .replace(/(?<!\S)#\w+\b/g, "")
+  const cut = text.search(/(?<=\s)#(?!\p{N})/u);
+  return (cut >= 0 ? text.slice(0, cut) : text)
     .replace(/[ \t]{2,}/g, " ")
     .replace(/[ \t]*\n[ \t]*/g, "\n")
     .trim();

@@ -37,6 +37,7 @@ Options:
 | `--media-only`, `-m` | (flag) | save only posts with media |
 | `--include-retweets` | (flag) | also include reposts |
 | `--include-replies` | (flag) | also include replies |
+| `--metadata` | (flag) | write `metadata.json` |
 | `--dry` | (flag) | preview without operation |
 | `--help`, `-?` | none | show help |
 
@@ -48,7 +49,7 @@ DL/
   <username>/
     <post_id>/
       text.txt
-      metadata.json
+      metadata.json (optional with --metadata)
       <post_id>_1.jpg|png|mp4
       <post_id>_2.jpg|png|mp4
 ```

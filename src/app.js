@@ -16,6 +16,7 @@ function runArgs(argv) {
     includeRetweets: false,
     includeReplies: false,
     mediaOnly: false,
+    metadata: false,
     dry: false,
   };
 
@@ -35,6 +36,7 @@ function runArgs(argv) {
     } else if (a === "--include-retweets") args.includeRetweets = true;
     else if (a === "--media-only" || a === "-m") args.mediaOnly = true;
     else if (a === "--include-replies") args.includeReplies = true;
+    else if (a === "--metadata") args.metadata = true;
     else if (a === "--dry") args.dry = true;
     else if (a.startsWith("-")) throw new Error(`unrecognized option: ${a}`);
     else args.usernames.push(a);
@@ -66,6 +68,7 @@ function helpText() {
     "  --media-only, -m        save only posts with media",
     "  --include-retweets      also include reposts",
     "  --include-replies       also include replies",
+    "  --metadata              write metadata.json",
     "  --dry                   preview without operation",
     "  --help, -?              show help",
   ].join("\n");
@@ -138,7 +141,7 @@ async function run(args) {
       for (let i = 0; i < toSave.length; i += 1) {
         const record = toSave[i];
         console.log(`${user}: saving (${i + 1}/${toSave.length}) ${record.url}`);
-        await saveRecord(client.session, out, record, args.dry);
+        await saveRecord(client.session, out, record, args.dry, args.metadata);
         saved += 1;
         total += 1;
       }
