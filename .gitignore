@@ -1,0 +1,17 @@
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# env
+.env
+.env.*
+
+# os
+.DS_Store
+
+# local output
+DL/

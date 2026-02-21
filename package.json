@@ -1,0 +1,15 @@
+{
+  "name": "twixpostdl",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimalist Node.js Twitter/X post downloader, provided as lightweight as possible",
+  "type": "module",
+  "scripts": {
+    "dl": "node --use-env-proxy src/app.js",
+    "start": "npm run dl --",
+    "lint": "node --check src/*.js"
+  },
+  "engines": {
+    "node": ">=22.21.0"
+  }
+}
